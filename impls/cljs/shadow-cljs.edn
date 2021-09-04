@@ -1,0 +1,8 @@
+{:source-paths 
+ ["src"]
+ 
+ :builds
+ {:step0
+  {:target :node-script
+   :output-to "out/step0.js"
+   :main step0-repl/-main}}}

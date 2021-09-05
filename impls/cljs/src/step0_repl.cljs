@@ -1,4 +1,9 @@
-(ns step0-repl)
+(ns step0-repl
+  (:require ["readline" :as readline]))
+
+(def rl
+  (.createInterface readline #js {:input js/process.stdin
+                                  :output js/process.stdout}))
 
 (defn READ [s]
   s)
@@ -7,10 +12,15 @@
   s)
 
 (defn PRINT [s]
-  s)
+  (println s))
 
 (defn rep [s]
   (-> s READ EVAL PRINT))
 
-(defn -main [& args]
-  (println "args" args))
+(defn main-loop []
+  (.question rl "user> " (fn [s]
+                          (rep s)
+                          (main-loop))))
+
+(defn -main [& _args]
+  (main-loop))

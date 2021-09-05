@@ -2,7 +2,13 @@
  ["src"]
  
  :builds
- {:step0
+ {:step0-dev
   {:target :node-script
-   :output-to "out/step0.js"
-   :main step0-repl/-main}}}
+   :output-to "out/step0_repl_dev.js"
+   :main step0-repl/-main}
+  
+  :step0
+  {:target :node-script
+   :output-to "out/step0_repl.js"
+   :main step0-repl/-main}
+  }}

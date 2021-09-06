@@ -22,14 +22,16 @@
           (recur))))
     ret))
 
-(defn read-atom [{:keys [next]}]
-  (let [v (next)]
-    (cond
-      (re-matches #"\d+(\.\d+)?" v)
-      (->form "number" (js/parseFloat v))
+(defn read-atom' [s]
+  (cond
+    (re-matches #"(-)?\d+(\.\d+)?" s)
+    (->form "number" (js/parseFloat s))
 
-      :else
-      (->form "symbol" v))))
+    :else
+    (->form "symbol" s)))
+
+(defn read-atom [{:keys [next]}]
+  (read-atom' (next)))
 
 (defn read-form [{:keys [peek next] :as reader}]
   (if (= "(" (peek))

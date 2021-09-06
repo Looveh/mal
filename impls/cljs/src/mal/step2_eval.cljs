@@ -8,13 +8,13 @@
 
 (def repl-env
   {"+" (fn [a b]
-         (->form "number" (+ a b)))
+         (->form "number" (+ a.value b.value)))
    "-" (fn [a b]
-         (->form "number" (- a b)))
+         (->form "number" (- a.value b.value)))
    "*" (fn [a b]
-         (->form "number" (* a b)))
+         (->form "number" (* a.value b.value)))
    "/" (fn [a b]
-         (->form "number" (/ a b)))})
+         (->form "number" (/ a.value b.value)))})
 
 (declare eval-ast)
 
@@ -31,7 +31,6 @@
 
     :else
     (let [res (eval-ast ast env)
-          _ (println res)
           operator (aget res.value 0)
           operands (.slice res.value 1)]
       (apply operator operands))))
@@ -52,7 +51,7 @@
                               res))
 
       :else
-      value)))
+      ast)))
 
 (defn PRINT [form]
   (println (reader/pr-str' form)))

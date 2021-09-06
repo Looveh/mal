@@ -1,4 +1,4 @@
-(ns step1-read-print
+(ns mal.step0-repl
   (:require ["readline" :as readline]))
 
 (def rl

@@ -15,4 +15,9 @@
   :step1
   {:target :node-script
    :output-to "out/step1_read_print.js"
-   :main mal.step1-read-print/-main}}}
+   :main mal.step1-read-print/-main}
+
+  :step2
+  {:target :node-script
+   :output-to "out/step2_eval.js"
+   :main mal.step2-eval/-main}}}

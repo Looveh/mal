@@ -1,4 +1,5 @@
-(ns mal.reader)
+(ns mal.reader
+  (:require [clojure.string]))
 
 (declare read-form)
 
@@ -10,7 +11,7 @@
     (loop []
       (cond
         (nil? (peek))
-        (throw "EOF reached without closing ')'")
+        (throw "EOF")
 
         (= ")" (peek))
         (next)
@@ -26,8 +27,8 @@
     (cond
       (re-matches #"\d+(\.\d+)?" v)
       (->form "number" (js/parseFloat v))
-      
-      :else 
+
+      :else
       (->form "symbol" v))))
 
 (defn read-form [{:keys [peek next] :as reader}]
@@ -37,7 +38,7 @@
 
 (defn ->reader [tokens]
   (let [pos (atom 0)]
-    {:peek (fn [] 
+    {:peek (fn []
              (get tokens @pos))
      :next (fn []
              (swap! pos inc)
@@ -51,12 +52,16 @@
          (filter #(not= "" %))
          (vec))))
 
-(defn read-str [s]
+(defn read-str' [s]
   (let [tokens (tokenize s)
         reader (->reader tokens)]
     (read-form reader)))
 
-(comment 
-  (read-str "(+ 1 2)")
-  (tokenize "(+ a b)")
-  )
+(defn pr-str' [form]
+  (let [type form.type
+        value form.value]
+    (condp = type
+      "symbol" (str value)
+      "number" (str value)
+      "list" (str "(" (clojure.string/join " " (map pr-str' value)) ")")
+      (throw (str "Unknown type '" type "'")))))

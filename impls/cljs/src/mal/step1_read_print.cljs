@@ -1,18 +1,19 @@
 (ns mal.step1-read-print
-  (:require ["readline" :as readline]))
+  (:require [mal.reader :as reader]
+            ["readline" :as readline]))
 
 (def rl
   (.createInterface readline #js {:input js/process.stdin
                                   :output js/process.stdout}))
 
 (defn READ [s]
-  s)
+  (reader/read-str' s))
 
-(defn EVAL [s]
-  s)
+(defn EVAL [form]
+  form)
 
-(defn PRINT [s]
-  (println s))
+(defn PRINT [form]
+  (println (reader/pr-str' form)))
 
 (defn rep [s]
   (-> s READ EVAL PRINT))

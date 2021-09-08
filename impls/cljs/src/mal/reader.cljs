@@ -65,7 +65,14 @@
             v (read-form reader)]
         (->form "list" #js [(->form "symbol" "with-meta") v m]))
 
-      (re-matches #"(-)?\d+(\.\d+)?" s)
+      (.startsWith s "\"")
+      (if (or (= "\"" s) 
+              (not (.endsWith s "\""))
+              (.endsWith s "\\\""))
+        (throw "EOF")
+        (->form "string" s))
+
+      (re-matches #"^(-)?\d+(\.\d+)?$" s)
       (->form "number" (js/parseFloat s))
 
       :else
@@ -116,13 +123,5 @@
       "vec" (str "[" (clojure.string/join " " (map pr-str' value)) "]")
       "hash-map" (str "{" (clojure.string/join " " (map pr-str' value)) "}")
       "quoted" (str value)
+      "string" value
       (throw (str "Unknown type '" type "'")))))
-
-(comment
-  (re-matches #"[\[\(]" "(")
-  (read-str' "~@(1 2 3)")
-  (pr-str' (read-str' "{1 2 3} 1"))
-  (map (fn [[k v]]
-         (println k v))
-       (flatten (js/Object.entries #js {"a" 1 "b" 2})))
-  )

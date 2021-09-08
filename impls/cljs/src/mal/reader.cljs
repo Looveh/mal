@@ -41,26 +41,30 @@
   (let [s (next)]
     (cond
       (= "@" s)
-      (->form "list" #js [(->form "symbol" "deref") 
+      (->form "list" #js [(->form "symbol" "deref")
                           (read-form reader)])
 
       (= "'" s)
-      (->form "list" #js [(->form "symbol" "quote") 
+      (->form "list" #js [(->form "symbol" "quote")
                           (read-form reader)])
 
       (= "~" s)
-      (->form "list" #js [(->form "symbol" "unquote") 
+      (->form "list" #js [(->form "symbol" "unquote")
                           (read-form reader)])
 
       (= "`" s)
       (->form "list" #js [(->form "symbol" "quasiquote")
                           (read-form reader)])
 
+      (= "~@" s)
+      (->form "list" #js [(->form "symbol" "splice-unquote")
+                          (read-form reader)])
+
       (= "^" s)
       (let [m (read-form reader)
             v (read-form reader)]
         (->form "list" #js [(->form "symbol" "with-meta") v m]))
-      
+
       (re-matches #"(-)?\d+(\.\d+)?" s)
       (->form "number" (js/parseFloat s))
 
@@ -116,6 +120,7 @@
 
 (comment
   (re-matches #"[\[\(]" "(")
+  (read-str' "~@(1 2 3)")
   (pr-str' (read-str' "{1 2 3} 1"))
   (map (fn [[k v]]
          (println k v))

@@ -72,6 +72,9 @@
         (throw "EOF")
         (->form "string" s))
 
+      (.startsWith s ":")
+      (->form "keyword" (.slice s 1))
+
       (= "nil" s)
       (->form "nil" nil)
 
@@ -135,4 +138,5 @@
       "string" value
       "nil" "nil"
       "bool" (str value)
+      "keyword" (str ":" value)
       (throw (str "Unknown type '" type "'")))))

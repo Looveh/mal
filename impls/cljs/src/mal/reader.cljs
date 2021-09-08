@@ -6,11 +6,17 @@
 (defn ->form [type value]
   #js {:type type :value value})
 
-(defn read-list [{:keys [peek next] :as reader}]
-  (let [ret (->form "list" #js [])]
+(defn read-list [{:keys [peek next] :as reader} opener]
+  (let [t (condp = opener
+            "(" "list"
+            "[" "vec")
+        closer (condp = opener 
+                 "(" ")"
+                 "[" "]")
+        ret (->form t #js [])]
     (loop []
       (cond
-        (= ")" (peek))
+        (= closer (peek))
         (next)
 
         :else
@@ -47,9 +53,10 @@
       (->form "symbol" s))))
 
 (defn read-form [{:keys [peek next] :as reader}]
-  (if (= "(" (peek))
-    (do (next) (read-list reader))
-    (read-atom reader)))
+  (let [v (peek)]
+    (if (re-matches #"[\[\(]" v)
+      (do (next) (read-list reader v))
+      (read-atom reader))))
 
 (defn ->reader [tokens]
   (let [pos (atom 0)
@@ -80,7 +87,6 @@
         reader (->reader tokens)]
     (read-form reader)))
 
-
 (defn pr-str' [form]
   (let [type form.type
         value form.value]
@@ -88,8 +94,11 @@
       "symbol" (str value)
       "number" (str value)
       "list" (str "(" (clojure.string/join " " (map pr-str' value)) ")")
+      "vec" (str "[" (clojure.string/join " " (map pr-str' value)) "]")
       "quoted" (str value)
       (throw (str "Unknown type '" type "'")))))
 
 (comment
-  (pr-str' (read-str' "^{:a 1} (+ 1 2)")))
+  (re-matches #"[\[\(]" "(")
+  (pr-str' (read-str' "(+ 1 2)"))
+  )

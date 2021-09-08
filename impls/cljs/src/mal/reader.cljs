@@ -7,18 +7,29 @@
   #js {:type type :value value})
 
 (defn read-list [{:keys [peek next] :as reader} opener]
-  (let [t (condp = opener
-            "(" "list"
-            "[" "vec")
-        closer (condp = opener 
+  (let [type (condp = opener
+               "(" "list"
+               "[" "vec"
+               "{" "hash-map")
+        closer (condp = opener
                  "(" ")"
-                 "[" "]")
-        ret (->form t #js [])]
+                 "[" "]"
+                 "{" "}")
+        ret (->form type #js [])]
     (loop []
       (cond
         (= closer (peek))
         (next)
 
+        (= type "hash-map")
+        (let [k (read-form reader)
+              v (read-form reader)]
+          (when (or (= k closer) (= v closer))
+            (throw "has-map must contain even number of forms"))
+          (.push ret.value k)
+          (.push ret.value v)
+          (recur))
+        
         :else
         (do
           (.push ret.value (read-form reader))
@@ -54,7 +65,7 @@
 
 (defn read-form [{:keys [peek next] :as reader}]
   (let [v (peek)]
-    (if (re-matches #"[\[\(]" v)
+    (if (re-matches #"[\[\(\{]" v)
       (do (next) (read-list reader v))
       (read-atom reader))))
 
@@ -95,10 +106,14 @@
       "number" (str value)
       "list" (str "(" (clojure.string/join " " (map pr-str' value)) ")")
       "vec" (str "[" (clojure.string/join " " (map pr-str' value)) "]")
+      "hash-map" (str "{" (clojure.string/join " " (map pr-str' value)) "}")
       "quoted" (str value)
       (throw (str "Unknown type '" type "'")))))
 
 (comment
   (re-matches #"[\[\(]" "(")
-  (pr-str' (read-str' "(+ 1 2)"))
+  (pr-str' (read-str' "{1 2}"))
+  (map (fn [[k v]]
+         (println k v))
+       (flatten (js/Object.entries #js {"a" 1 "b" 2})))
   )

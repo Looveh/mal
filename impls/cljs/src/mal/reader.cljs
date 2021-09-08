@@ -19,21 +19,21 @@
           (recur))))
     ret))
 
-(defn read-atom [{:keys [next peek]}]
+(defn read-atom [{:keys [next peek] :as reader}]
   (println (peek))
   (let [s (next)]
     (cond
       (= "@" s)
-      (->form "list" #js [(->form "symbol" "deref")
-                          (->form "symbol" (next))])
+      (->form "list" #js [(->form "symbol" "deref") 
+                          (read-form reader)])
 
       (= "'" s)
-      (->form "list" #js [(->form "symbol" "quote")
-                          (->form "quoted" (next))])
+      (->form "list" #js [(->form "symbol" "quote") 
+                          (read-form reader)])
 
       (= "~" s)
-      (->form "list" #js [(->form "symbol" "unquote")
-                          (->form "symbol" (next))])
+      (->form "list" #js [(->form "symbol" "unquote") 
+                          (read-form reader)])
 
       (re-matches #"(-)?\d+(\.\d+)?" s)
       (->form "number" (js/parseFloat s))
@@ -76,7 +76,8 @@
     (read-form reader)))
 
 (comment 
-  (read-str' "~1")
+  (pr-str'
+   (read-str' "~'(1 2)"))
   )
 
 (defn pr-str' [form]

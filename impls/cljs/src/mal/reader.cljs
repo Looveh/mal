@@ -52,6 +52,10 @@
       (->form "list" #js [(->form "symbol" "unquote") 
                           (read-form reader)])
 
+      (= "`" s)
+      (->form "list" #js [(->form "symbol" "quasiquote")
+                          (read-form reader)])
+
       (= "^" s)
       (let [m (read-form reader)
             v (read-form reader)]
@@ -112,7 +116,7 @@
 
 (comment
   (re-matches #"[\[\(]" "(")
-  (pr-str' (read-str' "{1 2}"))
+  (pr-str' (read-str' "{1 2 3} 1"))
   (map (fn [[k v]]
          (println k v))
        (flatten (js/Object.entries #js {"a" 1 "b" 2})))

@@ -27,6 +27,10 @@
       (->form "list" #js [(->form "symbol" "deref")
                           (->form "symbol" (next))])
 
+      (= "~" s)
+      (->form "list" #js [(->form "symbol" "unquote")
+                          (->form "symbol" (next))])
+      
       (re-matches #"(-)?\d+(\.\d+)?" s)
       (->form "number" (js/parseFloat s))
 
@@ -66,6 +70,10 @@
   (let [tokens (tokenize s)
         reader (->reader tokens)]
     (read-form reader)))
+
+(comment 
+  (read-str' "[1 2")
+  )
 
 (defn pr-str' [form]
   (let [type form.type

@@ -29,7 +29,7 @@
           (.push ret.value k)
           (.push ret.value v)
           (recur))
-        
+
         :else
         (do
           (.push ret.value (read-form reader))
@@ -66,11 +66,20 @@
         (->form "list" #js [(->form "symbol" "with-meta") v m]))
 
       (.startsWith s "\"")
-      (if (or (= "\"" s) 
+      (if (or (= "\"" s)
               (not (.endsWith s "\""))
               (.endsWith s "\\\""))
         (throw "EOF")
         (->form "string" s))
+
+      (= "nil" s)
+      (->form "nil" nil)
+
+      (= "true" s)
+      (->form "bool" true)
+
+      (= "false" s)
+      (->form "bool" false)
 
       (re-matches #"^(-)?\d+(\.\d+)?$" s)
       (->form "number" (js/parseFloat s))
@@ -124,4 +133,6 @@
       "hash-map" (str "{" (clojure.string/join " " (map pr-str' value)) "}")
       "quoted" (str value)
       "string" value
+      "nil" "nil"
+      "bool" (str value)
       (throw (str "Unknown type '" type "'")))))

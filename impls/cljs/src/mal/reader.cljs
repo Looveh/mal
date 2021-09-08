@@ -37,7 +37,6 @@
     ret))
 
 (defn read-atom [{:keys [next peek] :as reader}]
-  (println (peek))
   (let [s (next)]
     (cond
       (= "@" s)
@@ -126,17 +125,16 @@
     (read-form reader)))
 
 (defn pr-str' [form]
-  (let [type form.type
-        value form.value]
-    (condp = type
-      "symbol" (str value)
-      "number" (str value)
-      "list" (str "(" (clojure.string/join " " (map pr-str' value)) ")")
-      "vec" (str "[" (clojure.string/join " " (map pr-str' value)) "]")
-      "hash-map" (str "{" (clojure.string/join " " (map pr-str' value)) "}")
-      "quoted" (str value)
-      "string" value
+  (let [v form.value]
+    (condp = form.type
+      "symbol" (str v)
+      "number" (str v)
+      "list" (str "(" (clojure.string/join " " (map pr-str' v)) ")")
+      "vec" (str "[" (clojure.string/join " " (map pr-str' v)) "]")
+      "hash-map" (str "{" (clojure.string/join " " (map pr-str' v)) "}")
+      "quoted" (str v)
+      "string" v
       "nil" "nil"
-      "bool" (str value)
-      "keyword" (str ":" value)
-      (throw (str "Unknown type '" type "'")))))
+      "bool" (str v)
+      "keyword" (str ":" v)
+      (throw (str "Unknown type '" form.type "'")))))

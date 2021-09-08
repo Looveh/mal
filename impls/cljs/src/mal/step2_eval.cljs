@@ -32,23 +32,34 @@
     :else
     (let [res (eval-ast ast env)
           operator (aget res.value 0)
+          symbol (when (= "symbol" operator.type)
+                   (get env operator.value))
           operands (.slice res.value 1)]
-      (apply operator operands))))
+      (when-not symbol
+        (throw (str "Symbol not found: '" res.value "'")))
+      (apply symbol operands))))
 
 (defn eval-ast [ast env]
   (let [type ast.type
         value ast.value]
     (cond
-      (= "symbol" type)
-      (if-let [symbol (get env value)]
-        symbol
-        (throw (str "Symbol not found: '" value "'")))
-
       (= "list" type)
       (reader/->form "list" (let [res #js []]
                               (doseq [e value]
                                 (.push res (EVAL e env)))
                               res))
+
+      (= "vec" type)
+      (reader/->form "vec" (let [res #js []]
+                             (doseq [e value]
+                               (.push res (EVAL e env)))
+                             res))
+
+      (= "hash-map" type)
+      (reader/->form "hash-map" (let [res #js []]
+                                  (doseq [e value]
+                                    (.push res (EVAL e env)))
+                                  res))
 
       :else
       ast)))

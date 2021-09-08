@@ -6,3 +6,6 @@ out/step1_read_print.js: src/mal/step1_read_print.cljs
 
 out/step2_eval.js: src/mal/step2_eval.cljs
 	npx shadow-cljs compile :step2
+
+clean:
+	rm -rf out/

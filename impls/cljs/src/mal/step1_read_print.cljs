@@ -19,9 +19,13 @@
   (-> s READ EVAL PRINT))
 
 (defn main-loop []
-  (.question rl "user> " (fn [s]
-                          (rep s)
-                          (main-loop))))
+  (let [f (fn [s]
+            (try
+              (rep s)
+              (catch :default e
+                (println e)))
+            (main-loop))]
+    (.question rl "user> " f)))
 
 (defn -main [& _args]
   (main-loop))

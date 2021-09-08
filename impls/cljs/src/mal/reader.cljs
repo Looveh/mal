@@ -27,10 +27,14 @@
       (->form "list" #js [(->form "symbol" "deref")
                           (->form "symbol" (next))])
 
+      (= "'" s)
+      (->form "list" #js [(->form "symbol" "quote")
+                          (->form "quoted" (next))])
+
       (= "~" s)
       (->form "list" #js [(->form "symbol" "unquote")
                           (->form "symbol" (next))])
-      
+
       (re-matches #"(-)?\d+(\.\d+)?" s)
       (->form "number" (js/parseFloat s))
 
@@ -72,7 +76,7 @@
     (read-form reader)))
 
 (comment 
-  (read-str' "[1 2")
+  (read-str' "~1")
   )
 
 (defn pr-str' [form]
@@ -82,4 +86,5 @@
       "symbol" (str value)
       "number" (str value)
       "list" (str "(" (clojure.string/join " " (map pr-str' value)) ")")
+      "quoted" (str value)
       (throw (str "Unknown type '" type "'")))))

@@ -1,3 +1,5 @@
+.PHONY: clean
+
 out/step0_repl.js: src/mal/step0_repl.cljs
 	npx shadow-cljs compile :step0
 

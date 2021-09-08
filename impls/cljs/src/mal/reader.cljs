@@ -10,9 +10,6 @@
   (let [ret (->form "list" #js [])]
     (loop []
       (cond
-        (nil? (peek))
-        (throw "EOF")
-
         (= ")" (peek))
         (next)
 
@@ -22,16 +19,19 @@
           (recur))))
     ret))
 
-(defn read-atom' [s]
-  (cond
-    (re-matches #"(-)?\d+(\.\d+)?" s)
-    (->form "number" (js/parseFloat s))
+(defn read-atom [{:keys [next peek]}]
+  (println (peek))
+  (let [s (next)]
+    (cond
+      (= "@" s)
+      (->form "list" #js [(->form "symbol" "deref")
+                          (->form "symbol" (next))])
 
-    :else
-    (->form "symbol" s)))
+      (re-matches #"(-)?\d+(\.\d+)?" s)
+      (->form "number" (js/parseFloat s))
 
-(defn read-atom [{:keys [next]}]
-  (read-atom' (next)))
+      :else
+      (->form "symbol" s))))
 
 (defn read-form [{:keys [peek next] :as reader}]
   (if (= "(" (peek))
@@ -39,12 +39,20 @@
     (read-atom reader)))
 
 (defn ->reader [tokens]
-  (let [pos (atom 0)]
+  (let [pos (atom 0)
+        eof (fn []
+              (throw "EOF"))]
     {:peek (fn []
-             (get tokens @pos))
+             (let [v (get tokens @pos)]
+               (when-not v
+                 (eof))
+               v))
      :next (fn []
              (swap! pos inc)
-             (get tokens (dec @pos)))}))
+             (let [v (get tokens (dec @pos))]
+               (when-not v
+                 (eof))
+               v))}))
 
 (defn tokenize [s]
   (let [re #"[\s,]*(~@|[\[\]{}()'`~^@]|\"(?:\\.|[^\\\"])*\"?|\;\.*|[^\s\[\]{}('\"\`,\;)]*)"]

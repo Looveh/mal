@@ -35,6 +35,11 @@
       (->form "list" #js [(->form "symbol" "unquote") 
                           (read-form reader)])
 
+      (= "^" s)
+      (let [m (read-form reader)
+            v (read-form reader)]
+        (->form "list" #js [(->form "symbol" "with-meta") v m]))
+      
       (re-matches #"(-)?\d+(\.\d+)?" s)
       (->form "number" (js/parseFloat s))
 
@@ -75,10 +80,6 @@
         reader (->reader tokens)]
     (read-form reader)))
 
-(comment 
-  (pr-str'
-   (read-str' "~'(1 2)"))
-  )
 
 (defn pr-str' [form]
   (let [type form.type
@@ -89,3 +90,6 @@
       "list" (str "(" (clojure.string/join " " (map pr-str' value)) ")")
       "quoted" (str value)
       (throw (str "Unknown type '" type "'")))))
+
+(comment
+  (pr-str' (read-str' "^{:a 1} (+ 1 2)")))

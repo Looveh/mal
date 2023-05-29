@@ -1,4 +1,7 @@
 build:
-	rustc step0_repl.rs
+	cargo build
+
+step0_repl:
+	cargo build
 
 all: build

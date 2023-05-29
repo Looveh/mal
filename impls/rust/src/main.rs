@@ -18,11 +18,15 @@ fn rep(s: String) -> String {
 
 fn main() {
     loop {
-        print!("user > ");
+        print!("user> ");
         io::stdout().flush().unwrap();
+
         let mut line = String::new();
-        let stdin = io::stdin();
-        stdin.lock().read_line(&mut line).unwrap();
-        rep(line);
+
+        io::stdin().lock().read_line(&mut line).unwrap();
+
+        let res = rep(line);
+
+        print!("{res}");
     }
 }

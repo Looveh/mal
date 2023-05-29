@@ -1,2 +1,2 @@
 #!/bin/bash
-exec cargo run -q $(dirname $0)/${STEP:-stepA_mal} "${@}"
+exec $(dirname $0)/target/debug/mal "${@}"
